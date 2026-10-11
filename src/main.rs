@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod data;
 mod pin;
+mod prefs;
 mod probe;
 use ferrite_design::prelude::*;
 use gpui::{
@@ -272,14 +273,14 @@ impl Relay {
                 commands.push(
                     command(format!("Scheme: {}", scheme.name))
                         .group("Theme")
-                        .on_run(move |_, cx| theme::set_scheme(scheme, cx)),
+                        .on_run(move |_, cx| prefs::scheme(scheme, cx)),
                 );
             }
             commands.push(
                 command("Toggle light / dark")
                     .group("Theme")
                     .on_run(|w, cx| {
-                        theme::set_appearance(
+                        prefs::appearance(
                             if theme::appearance(cx) == Appearance::Light {
                                 Appearance::Dark
                             } else {
@@ -423,8 +424,7 @@ fn main() {
         return;
     }
     gpui_platform::application().run(|cx: &mut App| {
-        ferrite_design::init(Appearance::Dark, cx);
-        theme::apply_env(cx);
+        prefs::init(cx);
         cx.bind_keys([KeyBinding::new("ctrl-shift-p", TogglePalette, None)]);
         let options =
             chrome::remembered_window_options("relay", "Relay", size(px(700.), px(700.)), cx);
