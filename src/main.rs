@@ -201,6 +201,12 @@ fn open_widget(kind: Kind, cx: &mut App) -> Result<WindowHandle<Widget>, String>
     options.focus = false;
     options.is_resizable = false;
     options.window_min_size = Some(size(px(300.), px(130.)));
+    // Ferrite's normal app minimum is larger than a widget. Preserve its saved
+    // position but always restore the widget's compact dimensions.
+    if let Some(gpui::WindowBounds::Windowed(mut bounds)) = options.window_bounds {
+        bounds.size = size(px(400.), px(height));
+        options.window_bounds = Some(gpui::WindowBounds::Windowed(bounds));
+    }
     // First pins have distinct positions; subsequent launches use the saved bounds.
     let remembered =
         chrome::config_dir().is_some_and(|dir| dir.join(format!("{}.window", kind.key())).exists());
