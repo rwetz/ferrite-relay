@@ -80,6 +80,7 @@ impl Widget {
 impl Render for Widget {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let p = palette(cx);
+        let kind = self.kind;
         let heading = div()
             .flex()
             .items_center()
@@ -101,7 +102,10 @@ impl Render for Widget {
                     .label("×")
                     .ghost()
                     .small()
-                    .on_click(|_, w, _| w.remove_window()),
+                    .on_click(move |_, w, _| {
+                        closed(kind);
+                        w.remove_window();
+                    }),
             );
         let body = match self.kind {
             Kind::Clock => div()
@@ -196,11 +200,29 @@ fn open_widget(kind: Kind, cx: &mut App) -> Result<WindowHandle<Widget>, String>
     options.focus = false;
     options.is_resizable = false;
     options.window_min_size = Some(size(px(300.), px(130.)));
+    // First pins have distinct positions; subsequent launches use the saved bounds.
+    let remembered =
+        chrome::config_dir().is_some_and(|dir| dir.join(format!("{}.window", kind.key())).exists());
+    if !remembered && let Some(display) = cx.primary_display() {
+        let room = display.visible_bounds();
+        let index = KINDS.iter().position(|k| *k == kind).unwrap_or(0);
+        let offset = [0., 180., 435.][index];
+        let x = room.origin.x + (room.size.width - px(425.)).max(px(0.));
+        let y = room.origin.y + px(offset + 20.).min((room.size.height - px(height)).max(px(0.)));
+        options.window_bounds = Some(gpui::WindowBounds::Windowed(gpui::Bounds::new(
+            gpui::point(x, y),
+            size(px(400.), px(height)),
+        )));
+    }
     cx.open_window(options, move |w, cx| {
         w.set_window_title(&format!("Relay {}", kind.name()));
         chrome::square_corners(w);
         pin::pin(w);
         chrome::remember_window(kind.key(), w, cx);
+        w.on_window_should_close(cx, move |_, _| {
+            closed(kind);
+            true
+        });
         cx.new(|cx| Widget::new(kind, cx))
     })
     .map_err(|e| e.to_string())
@@ -216,6 +238,13 @@ fn saved() -> [bool; 3] {
         .ok()
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or([false; 3])
+}
+fn closed(kind: Kind) {
+    let mut state = saved();
+    if let Some(i) = KINDS.iter().position(|k| *k == kind) {
+        state[i] = false;
+    }
+    save(state);
 }
 fn save(state: [bool; 3]) {
     let path = settings_path();
