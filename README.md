@@ -18,6 +18,10 @@ Rust 1.92 or newer: cargo run. Run cargo test and cargo clippy --all-targets. `-
 
 Panel state: %APPDATA%/ferrite/relay-widgets.json. Window positions use the Ferrite window store. Apache-2.0.
 
+## Settings
+
+Open the sliders button in the title bar, press Ctrl+, or choose Settings from the command palette. All ten schemes, Dark/Light/System appearance, motion refresh rate (12 to 240 FPS), and row density apply immediately and persist per app. Save failures appear in Settings. Start with `--settings` to open the drawer directly. Ferrite launcher environment overrides take precedence at startup.
+
 ---
 
 <p align="center">

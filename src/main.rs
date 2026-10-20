@@ -2,7 +2,9 @@
 mod data;
 mod pin;
 mod prefs;
+mod prefs_store;
 mod probe;
+mod settings_ui;
 use ferrite_design::prelude::*;
 use gpui::{
     App, AppContext as _, Context, Entity, IntoElement, KeyBinding, Render, Subscription, Task,
@@ -265,12 +267,14 @@ fn save(state: [bool; 3]) {
 struct Relay {
     widgets: [Option<WindowHandle<Widget>>; 3],
     palette: Entity<CommandPalette>,
+    settings: Entity<settings_ui::Settings>,
     _appearance: Subscription,
     _tick: Task<()>,
     status: String,
 }
 impl Relay {
     fn new(w: &mut Window, cx: &mut Context<Self>) -> Self {
+        let settings = cx.new(|_| settings_ui::Settings::new());
         let palette = cx.new(|cx| CommandPalette::new(w, cx));
         let weak = cx.weak_entity();
         palette.update(cx, |p, cx| {
@@ -307,6 +311,7 @@ impl Relay {
                         }),
                 );
             }
+            commands.push(settings_ui::settings_command(settings.clone()));
             p.set_commands(commands, cx);
         });
         let tick = cx.spawn(async move |this, cx| {
@@ -345,7 +350,7 @@ impl Relay {
                 widgets[i] = open_widget(KINDS[i], cx).ok();
             }
         }
-        Self{widgets,palette,_appearance:theme::follow_system(w),_tick:tick,status:"Drag a panel by its heading. Close it with ×. Positions and pinned panels are remembered.".into()}
+        Self{widgets,palette,settings,_appearance:theme::follow_system(w),_tick:tick,status:"Drag a panel by its heading. Close it with ×. Positions and pinned panels are remembered.".into()}
     }
     fn toggle(&mut self, i: usize, cx: &mut Context<Self>) {
         if let Some(handle) = self.widgets[i].take() {
@@ -390,8 +395,16 @@ impl Render for Relay {
                 .on_action(cx.listener(|s, _: &TogglePalette, w, cx| {
                     s.palette.update(cx, |p, cx| p.toggle(w, cx))
                 }))
+                .on_action(cx.listener(|this, _: &settings_ui::ToggleSettings, _, cx| {
+                    this.settings.update(cx, |s, cx| s.toggle(cx));
+                }))
+                .child(self.settings.clone())
                 .child(self.palette.clone())
-                .child(title_bar("Relay").child(menu))
+                .child(
+                    title_bar("Relay")
+                        .child(settings_ui::button(self.settings.clone()))
+                        .child(menu),
+                )
                 .child(
                     scroll_area("panels").flex_1().min_h_0().child(
                         div()
@@ -431,7 +444,10 @@ fn main() {
     }
     gpui_platform::application().run(|cx: &mut App| {
         prefs::init(cx);
-        cx.bind_keys([KeyBinding::new("ctrl-shift-p", TogglePalette, None)]);
+        cx.bind_keys([
+            KeyBinding::new("ctrl-shift-p", TogglePalette, None),
+            KeyBinding::new("ctrl-,", settings_ui::ToggleSettings, None),
+        ]);
         let options =
             chrome::remembered_window_options("relay", "Relay", size(px(700.), px(700.)), cx);
         cx.open_window(options, |w, cx| {
