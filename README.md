@@ -1,8 +1,20 @@
-# Relay
+<p align="center">
+  <img src="assets/logo.svg" width="128" height="128" alt="Relay logo">
+</p>
 
-![Relay icon](assets/logo.svg)
+<h1 align="center">Relay</h1>
 
-Frameless, always-on-top Ferrite desktop panels: a local clock, live system CPU load with a one-minute chart, and Wireless's current station and track.
+<p align="center">
+  Frameless, always-on-top Ferrite desktop panels: clock, CPU load and Wireless's now playing.
+</p>
+
+<p align="center">
+  <a href="https://github.com/rwetz/ferrite-relay/actions/workflows/ci.yml"><img src="https://github.com/rwetz/ferrite-relay/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/rwetz/ferrite-relay/releases/latest"><img src="https://img.shields.io/github/v/release/rwetz/ferrite-relay?color=F2A93B&labelColor=18181B" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3D3D42?labelColor=18181B" alt="License"></a>
+</p>
+
+![Relay's panel manager listing the clock, CPU and now-playing panels](docs/main.png)
 
 Pin or close panels from Relay, its Ctrl+Shift+P command palette, or each panel's close button. Drag headings to position panels. Pinned state and window positions are saved locally. All open panels follow Relay's selected scheme and appearance. Closing the manager leaves pinned panels running.
 
@@ -21,6 +33,13 @@ Panel state: %APPDATA%/ferrite/relay-widgets.json. Window positions use the Ferr
 ## Settings
 
 Open the sliders button in the title bar, press Ctrl+, or choose Settings from the command palette. All ten schemes, Dark/Light/System appearance, motion refresh rate (12 to 240 FPS), and row density apply immediately and persist per app. Save failures appear in Settings. Start with `--settings` to open the drawer directly. Ferrite launcher environment overrides take precedence at startup.
+
+## Keys
+
+| Keys | |
+|---|---|
+| <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Command palette |
+| <kbd>Ctrl</kbd>+<kbd>,</kbd> | Settings |
 
 ---
 
