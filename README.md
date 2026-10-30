@@ -17,3 +17,12 @@ Download the Windows x64 zip from Releases, or install Relay through Lodestone. 
 Rust 1.92 or newer: cargo run. Run cargo test and cargo clippy --all-targets. `--smoke` checks CPU sampling; `--widgets` opens all three panels for inspection; `--version` reports the version.
 
 Panel state: %APPDATA%/ferrite/relay-widgets.json. Window positions use the Ferrite window store. Apache-2.0.
+
+---
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/heptagram-white.svg">
+    <img src="docs/brand/heptagram-black.svg" alt="heptagram" width="48">
+  </picture>
+</p>
